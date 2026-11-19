@@ -6,6 +6,11 @@ import br.com.territorypredictive.sensor.Sensor;
 import br.com.territorypredictive.sensor.SensorAtendimentos;
 import br.com.territorypredictive.sensor.SensorEstoque;
 import br.com.territorypredictive.sensor.SensorFila;
+import java.util.ArrayList;
+import br.com.territorypredictive.previsao.EstrategiaPrevisao;
+import br.com.territorypredictive.previsao.PrevisaoComparacao;
+import br.com.territorypredictive.previsao.PrevisaoMediaMovel;
+
 
 // Teste provisório, depois vai ser trocado pelo menu
 public class SistemaMonitoramento {
@@ -47,6 +52,24 @@ public class SistemaMonitoramento {
             for (Sensor s : sensores) {
                 System.out.println(s.getTipo() + ": " + s.lerValor() + " " + s.getUnidade()
                         + " | funcionando: " + s.verificarFuncionamento());
+            }
+        }
+        // Previsões
+        System.out.println("\nPrevisões");
+        Sensor fila = new SensorFila();
+        ArrayList<Double> leituras = new ArrayList<>();
+        EstrategiaPrevisao[] estrategias = { new PrevisaoMediaMovel(5), new PrevisaoComparacao(3) };
+
+        for (int i = 1; i <= 8; i++) {
+            leituras.add(fila.lerValor());
+            System.out.println("--- Leituras guardadas: " + leituras.size() + " ---");
+            for (EstrategiaPrevisao e : estrategias) {
+                if (e.temLeiturasSuficientes(leituras)) {
+                    System.out.println(e.explicar(e.prever(leituras), fila.getUnidade()));
+                } else {
+                    System.out.println(e.getNome() + ": leituras insuficientes (mínimo "
+                            + e.getMinimoLeituras() + ")");
+                }
             }
         }
     }
